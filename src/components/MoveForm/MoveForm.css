@@ -1,0 +1,16 @@
+.move-form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+button {
+  margin: 3px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  min-width: 120px;
+}
