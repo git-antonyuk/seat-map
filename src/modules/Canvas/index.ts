@@ -1,3 +1,4 @@
+import { ISeatObject } from '../Seats/createData';
 import { ISize } from '../../types';
 import Seats, { ICreateSeatsParams } from '../Seats';
 import { findCanvasElement, findObject } from './helpers';
@@ -5,7 +6,10 @@ import { findCanvasElement, findObject } from './helpers';
 interface ICanvasConstructorParams {
   id: string;
   sizes?: ISize;
-  callbackGetClickedObject: Function
+  callbackGetClickedObject: Function,
+  params?: ICreateSeatsParams,
+  isPublic: boolean,
+  objects?: ISeatObject[]
 }
 
 const ERROR_CANT_FIND_ELEMENT = 'Can\'t find canvas element';
@@ -15,11 +19,13 @@ class Canvas {
 
   private ctx: CanvasRenderingContext2D | null = null;
 
-  private params: ICreateSeatsParams | null = null;
+  public params: ICreateSeatsParams | null = null;
 
   public currentClickedObject: any = null;
 
   public seats: Seats | null = null;
+
+  private isPublic: boolean = false;
 
   private sizes: ISize = {
     width: 0,
@@ -28,20 +34,27 @@ class Canvas {
 
   private callbackGetClickedObject: Function;
 
-  constructor({ id, sizes, callbackGetClickedObject } : ICanvasConstructorParams) {
+  constructor({ id, sizes, callbackGetClickedObject, params, objects, isPublic } : ICanvasConstructorParams) {
     this.createContext(id);
     this.setSizes(sizes);
+    this.isPublic = isPublic;
     this.callbackGetClickedObject = callbackGetClickedObject;
 
     this.addResizeEvent(sizes);
     this.addClickEvent();
+    this.addMouseMoveEvent();
 
-    this.createSeats({
-      row: 8,
-      column: 18,
-      size: 32,
-      price: 100,
-    });
+    if (params) {
+      this.createSeats({ ...params, isPublic: this.isPublic, objects });
+    } else { // TODO Remove this item
+      this.createSeats({
+        row: 8,
+        column: 18,
+        size: 32,
+        price: 100,
+        isPublic: false,
+      });
+    }
   }
 
   private createContext(id: string): void {
@@ -108,7 +121,9 @@ class Canvas {
   }
 
   // Events
-  private onClick({ offsetX, offsetY }: { offsetX: number, offsetY: number }) {
+  // TODO: add debounce
+  // eslint-disable-next-line class-methods-use-this
+  private getObject = ({ offsetX, offsetY }: { offsetX: number, offsetY: number }) => {
     const scaledSize = this.seats?.scaledSize;
     const objects = this.seats?.objects;
 
@@ -116,9 +131,32 @@ class Canvas {
       return null;
     }
 
-    const object = findObject(offsetX, offsetY, scaledSize, objects);
+    return findObject(offsetX, offsetY, scaledSize, objects);
+  };
 
-    this.callbackGetClickedObject(object);
+  private onMouseMove({ offsetX, offsetY }: { offsetX: number, offsetY: number }) {
+    const object = this.getObject({ offsetX, offsetY });
+
+    this.seats?.onHoverObject(object?.id);
+  }
+
+  // TODO: add debounce
+  private addMouseMoveEvent() {
+    this.canvas?.addEventListener('mousemove', this.onMouseMove.bind(this));
+  }
+
+  private removeMouseMoveEvent() {
+    this.canvas?.removeEventListener('click', this.onMouseMove.bind(this));
+  }
+
+  private onClick({ offsetX, offsetY }: { offsetX: number, offsetY: number }) {
+    const object = this.getObject({ offsetX, offsetY });
+
+    if (!object) {
+      return;
+    }
+
+    this.callbackGetClickedObject(object, this.isPublic);
   }
 
   private addClickEvent() {
@@ -145,6 +183,7 @@ class Canvas {
 
     this.removeResizeEvent();
     this.removeClickEvent();
+    this.removeMouseMoveEvent();
   }
 }
 

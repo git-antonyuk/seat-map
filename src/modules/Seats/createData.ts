@@ -1,11 +1,13 @@
 export interface ISeatObject {
   posX: number; // Position in seat map by x
   posY: number; // Position in seat map by y
-  id: number | string;
+  id: number;
   realX: number; // Real position in canvas with offset x
   realY: number; // Real position in canvas with offset y
   price: number;
   disabled: boolean;
+  hovered?: boolean;
+  reserved?: boolean;
 }
 
 interface IParams {
@@ -32,6 +34,7 @@ const createData = ({
         realY: 0,
         price: price || 0,
         disabled: false,
+        reserved: false,
       });
       index += 1;
     }

@@ -1,11 +1,13 @@
 interface IBoxProps {
-  x: number,
-  y: number,
-  size?: number,
-  lineWidth?: number,
-  strokeStyle?: string,
-  disabled: boolean,
-  padding?: number,
+  x: number;
+  y: number;
+  size?: number;
+  lineWidth?: number;
+  strokeStyle?: string;
+  disabled: boolean;
+  padding?: number;
+  hovered?: boolean;
+  reserved?: boolean;
 }
 
 class Box {
@@ -25,14 +27,21 @@ class Box {
 
   private padding?: number;
 
+  private hovered?: boolean;
+
+  private reserved?: boolean;
+
   constructor(ctx: CanvasRenderingContext2D, {
-    x, y, size, lineWidth, strokeStyle, disabled, padding,
+    x, y, size, lineWidth, strokeStyle,
+    disabled, padding, hovered, reserved,
   }: IBoxProps) {
     this.ctx = ctx;
     this.positionX = x;
     this.positionY = y;
     this.disabled = disabled;
     this.padding = padding;
+    this.hovered = hovered;
+    this.reserved = reserved;
 
     if (size) {
       this.size = size;
@@ -72,10 +81,22 @@ class Box {
       );
     }
 
-    this.ctx.stroke();
-    if (this.disabled) {
+    if (this.hovered) {
+      this.ctx.fillStyle = this.strokeStyle;
       this.ctx.fill();
     }
+
+    if (this.disabled) {
+      this.ctx.fillStyle = '#333';
+      this.ctx.fill();
+    }
+
+    if (this.reserved) {
+      this.ctx.fillStyle = 'red';
+      this.ctx.fill();
+    }
+
+    this.ctx.stroke();
     this.ctx.closePath();
   }
 }

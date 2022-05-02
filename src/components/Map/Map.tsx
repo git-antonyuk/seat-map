@@ -16,6 +16,7 @@ function Map() {
       return;
     }
     setSingleSeatData(item);
+
     setShowModal(true);
   };
 
@@ -24,7 +25,6 @@ function Map() {
   };
 
   const saveSeatData = (object: ISeatObject) => {
-    console.log('%c 🌽 object: ', 'font-size:12px;background-color: #B03734;color:#fff;', object);
     canvas?.seats?.editObject(object);
     closeModal();
   };
@@ -33,6 +33,7 @@ function Map() {
     const canvasInstance = new Canvas({
       id: '#canvas',
       callbackGetClickedObject,
+      isPublic: false,
     });
 
     setCanvas(canvasInstance);
@@ -49,7 +50,10 @@ function Map() {
   return (
     <>
       <FormSeat visible={showModal} close={closeModal} save={saveSeatData} seatData={singleSeatData} />
-      <FormWrapper canvas={canvas} createSeats={createSeats} />
+      <FormWrapper
+        canvas={canvas}
+        createSeats={createSeats}
+      />
       <canvas id="canvas" />
     </>
   );

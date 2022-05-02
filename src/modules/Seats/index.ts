@@ -3,6 +3,7 @@ import { ISize } from '../../types';
 import createData, { ISeatObject } from './createData';
 import Box from '../Objects/Box';
 import Pointers from '../Pointers';
+import objectDeepClone from '../../utils/objectDeepClone';
 
 const MOVE_SPEED = 50;
 
@@ -10,7 +11,9 @@ export interface ICreateSeatsParams {
   row: number,
   column: number,
   size: number,
-  price: number
+  price: number,
+  isPublic: boolean,
+  objects?: ISeatObject[]
 }
 
 class Seats {
@@ -39,13 +42,23 @@ class Seats {
 
   private price: number = 0;
 
-  constructor(ctx: CanvasRenderingContext2D, sizes: ISize, { row, column, size, price }: ICreateSeatsParams) {
+  private isPublic: boolean = false;
+
+  constructor(
+    ctx: CanvasRenderingContext2D,
+    sizes: ISize,
+    { row, column, size, price, isPublic, objects }: ICreateSeatsParams,
+  ) {
     this.ctx = ctx;
     this.canvasSizes = sizes;
     this.row = row;
     this.column = column;
     this.size = size;
     this.price = price;
+    this.isPublic = isPublic;
+    if (objects) {
+      this.objects = objects;
+    }
     this.create();
   }
 
@@ -83,7 +96,7 @@ class Seats {
     this.clearCanvas();
 
     for (let i = 0; i < list.length; i += 1) {
-      const { posX, posY, disabled } = list[i];
+      const { posX, posY, disabled, hovered } = list[i];
       const x = this.getPositionX(posX);
       const y = this.getPositionY(posY);
 
@@ -94,6 +107,7 @@ class Seats {
         strokeStyle: 'blue',
         disabled,
         padding: 5 * (this.scaledSize / this.size),
+        hovered,
       });
 
       this.objects[i].realX = x;
@@ -113,22 +127,46 @@ class Seats {
     pointers.drawVerticalPointers('right');
   }
 
+  hoveredObjectId?: number;
+
+  public onHoverObject(id?: number) {
+    if (this.hoveredObjectId === id) {
+      return;
+    }
+    this.hoveredObjectId = id;
+
+    if (typeof this.hoveredObjectId === 'undefined') {
+      this.drawBoxes(this.objects);
+      return;
+    }
+
+    const localObjects = objectDeepClone(this.objects);
+    const index = localObjects.findIndex((item: { id: number }) => item.id === id);
+    localObjects[index].hovered = true;
+    this.drawBoxes(localObjects);
+  }
+
   private reDraw() {
     this.drawBoxes(this.objects);
   }
 
   private create() {
     this.setZoom(1);
-    this.objects = createData({
-      row: this.row,
-      column: this.column,
-      price: this.price,
-    });
+    if (!this.isPublic || !this.objects) {
+      this.objects = createData({
+        row: this.row,
+        column: this.column,
+        price: this.price,
+      });
+    }
+
     this.drawBoxes(this.objects);
   }
 
   public editObject(object: ISeatObject) {
     const index = this.objects.findIndex((item: ISeatObject) => item.id === object.id);
+
+    console.log('%c 🍫 index: ', 'font-size:12px;background-color: #FCA650;color:#fff;', index);
 
     if (typeof index !== 'number' || !this.objects?.[index]) {
       return;

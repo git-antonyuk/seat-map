@@ -9,8 +9,8 @@ import SeatsList from '../SeatsList/SeatsList';
 import ExportJSON from '../ExportJSON/ExportJSON';
 
 interface IProps {
-    canvas: Canvas | null,
-    createSeats: Function
+    canvas: Canvas | null;
+    createSeats: Function;
 }
 
 function FormWrapper(props: IProps) {
@@ -43,11 +43,13 @@ function FormWrapper(props: IProps) {
   return (
     <div className="form-wrapper">
       <Card title="Seats builder" bordered style={{ width: 300 }}>
-        <Button type="primary" className="btn-create" onClick={openSeatForm}>Create new seats</Button>
-        {moveComponent()}
-        {seatFormComponent()}
-        {seatsListComponent()}
-        {exportJSONComponent()}
+        <>
+          <Button type="primary" className="btn-create" onClick={openSeatForm}>Create new seats</Button>
+          {moveComponent()}
+          {seatFormComponent()}
+          {seatsListComponent()}
+          {exportJSONComponent()}
+        </>
       </Card>
     </div>
   );
