@@ -111,7 +111,6 @@ class Seats {
 
     pointers.drawVerticalPointers('left');
     pointers.drawVerticalPointers('right');
-    // this.drawPointers();
   }
 
   private reDraw() {

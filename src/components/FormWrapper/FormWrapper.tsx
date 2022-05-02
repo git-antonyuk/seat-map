@@ -15,24 +15,21 @@ interface IProps {
 
 function FormWrapper(props: IProps) {
   const { canvas, createSeats } = props;
-  // const [showCreateButton, setShowCreateButton] = useState<boolean>(true);
   const [showMove, setShowMove] = useState<boolean>(false);
   const [showSeatForm, setSeatForm] = useState<boolean>(false);
 
   // STEP 1
   const openSeatForm = () => {
     setSeatForm(true);
-    // STEP 2
-    // setShowCreateButton(false);
   };
 
-  // STEP 4
+  // STEP 3
   const openMoveForm = () => {
     setShowMove(true);
   };
 
   const closeSeatForm = () => {
-    // STEP 3
+    // STEP 2
     setSeatForm(false);
     openMoveForm();
   };
@@ -40,8 +37,6 @@ function FormWrapper(props: IProps) {
   const moveComponent = () => !showSeatForm && (canvas || showMove) && <MoveForm canvas={canvas} />;
   const seatFormComponent = () => showSeatForm
     && <CreateSeats createSeats={createSeats} closeSeatForm={closeSeatForm} />;
-  // const createButtonComponent = () => !canvas && showCreateButton
-  //   && <Button type="primary" onClick={openSeatForm}>Create seats</Button>;
   const seatsListComponent = () => !showSeatForm && canvas && <SeatsList canvas={canvas} />;
   const exportJSONComponent = () => canvas && <ExportJSON canvas={canvas} />;
 
