@@ -4,14 +4,14 @@ export interface ISeatObject {
   id: number | string;
   realX: number; // Real position in canvas with offset x
   realY: number; // Real position in canvas with offset y
-  price: number | string;
+  price: number;
   disabled: boolean;
 }
 
 interface IParams {
   row: number;
   column: number;
-  price?: number | string;
+  price?: number;
   disabled?: boolean;
 }
 
@@ -22,8 +22,8 @@ const createData = ({
 }: IParams) => {
   const arr: ISeatObject[] = [];
   let index = 0;
-  for (let y = 0; y < column; y += 1) {
-    for (let x = 0; x < row; x += 1) {
+  for (let y = 0; y < row; y += 1) {
+    for (let x = 0; x < column; x += 1) {
       arr.push({
         posX: x,
         posY: y,

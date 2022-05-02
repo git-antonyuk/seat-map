@@ -4,6 +4,8 @@ interface IBoxProps {
   size?: number,
   lineWidth?: number,
   strokeStyle?: string,
+  disabled: boolean,
+  padding?: number,
 }
 
 class Box {
@@ -19,12 +21,19 @@ class Box {
 
   private size: number = 32;
 
+  private disabled: boolean = false;
+
+  private padding?: number;
+
   constructor(ctx: CanvasRenderingContext2D, {
-    x, y, size, lineWidth, strokeStyle,
+    x, y, size, lineWidth, strokeStyle, disabled, padding,
   }: IBoxProps) {
     this.ctx = ctx;
     this.positionX = x;
     this.positionY = y;
+    this.disabled = disabled;
+    this.padding = padding;
+
     if (size) {
       this.size = size;
     }
@@ -47,13 +56,26 @@ class Box {
     this.ctx.beginPath();
     this.ctx.lineWidth = this.lineWidth;
     this.ctx.strokeStyle = this.strokeStyle;
-    this.ctx.rect(
-      this.positionX, // The x-coordinate of the upper-left corner of the rectangle
-      this.positionY, // The y-coordinate of the upper-left corner of the rectangle
-      this.size, // width
-      this.size, // height
-    );
+    if (this.padding) {
+      this.ctx.rect(
+        this.positionX + this.padding, // The x-coordinate of the upper-left corner of the rectangle
+        this.positionY + this.padding, // The y-coordinate of the upper-left corner of the rectangle
+        this.size - this.padding * 2, // width
+        this.size - this.padding * 2, // height
+      );
+    } else {
+      this.ctx.rect(
+        this.positionX, // The x-coordinate of the upper-left corner of the rectangle
+        this.positionY, // The y-coordinate of the upper-left corner of the rectangle
+        this.size, // width
+        this.size, // height
+      );
+    }
+
     this.ctx.stroke();
+    if (this.disabled) {
+      this.ctx.fill();
+    }
     this.ctx.closePath();
   }
 }

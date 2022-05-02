@@ -11,7 +11,10 @@ function Map() {
   const [showModal, setShowModal] = useState<boolean>(false);
   const [singleSeatData, setSingleSeatData] = useState<any>(null);
 
-  const callbackGetClickedObject = (item: any) => {
+  const callbackGetClickedObject = (item: ISeatObject) => {
+    if (!item) {
+      return;
+    }
     setSingleSeatData(item);
     setShowModal(true);
   };
@@ -21,6 +24,7 @@ function Map() {
   };
 
   const saveSeatData = (object: ISeatObject) => {
+    console.log('%c 🌽 object: ', 'font-size:12px;background-color: #B03734;color:#fff;', object);
     canvas?.seats?.editObject(object);
     closeModal();
   };

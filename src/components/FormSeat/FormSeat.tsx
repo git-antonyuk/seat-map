@@ -27,6 +27,7 @@ function FormSeat(props: IProps) {
   return (
     <Modal title={getTitle(seatData)} visible={visible} onCancel={handleCancel} footer={null}>
       <Form
+        key={seatData?.id || 0}
         name="basic"
         initialValues={{ price: seatData?.price || 0, disabled: !!seatData?.disabled }}
         onFinish={onFinish}

@@ -1,7 +1,6 @@
-import logger from '../../utils/logger';
 import { ISize } from '../../types';
 import Seats, { ICreateSeatsParams } from '../Seats';
-import { findCanvasElement } from './helpers';
+import { findCanvasElement, findObject } from './helpers';
 
 interface ICanvasConstructorParams {
   id: string;
@@ -38,44 +37,15 @@ class Canvas {
     this.addClickEvent();
 
     this.createSeats({
-      row: 18,
-      column: 8,
+      row: 8,
+      column: 18,
       size: 32,
       price: 100,
     });
   }
 
-  private findAnElement = (x: number, y: number) => {
-    const scaledSize = this.seats?.scaledSize;
-    const objects = this.seats?.objects;
-
-    if (!scaledSize || !objects) {
-      return null;
-    }
-
-    return objects.find(({ realX, realY }) => x >= realX && x <= realX + scaledSize
-    && y >= realY && y <= realY + scaledSize);
-  };
-
-  private onClick({ offsetX, offsetY }: { offsetX: number, offsetY: number }) {
-    // console.log(this.findAnElement(offsetX, offsetY));
-    // this.currentClickedObject = this.findAnElement(offsetX, offsetY);
-    this.callbackGetClickedObject(this.findAnElement(offsetX, offsetY));
-    // this.findAnElement(offsetX, offsetY);
-  }
-
-  private addClickEvent() {
-    this.canvas?.addEventListener('click', this.onClick.bind(this));
-  }
-
-  private addResizeEvent(sizes?: ISize) {
-    window.addEventListener('resize', this.setSizes.bind(this, sizes));
-  }
-
   private createContext(id: string): void {
     const canvas = findCanvasElement(id);
-
-    logger.log(canvas);
 
     if (!canvas) {
       console.error(ERROR_CANT_FIND_ELEMENT);
@@ -137,6 +107,32 @@ class Canvas {
     this.seats = new Seats(this.ctx, this.sizes, params || this.params);
   }
 
+  // Events
+  private onClick({ offsetX, offsetY }: { offsetX: number, offsetY: number }) {
+    const scaledSize = this.seats?.scaledSize;
+    const objects = this.seats?.objects;
+
+    if (!scaledSize || !objects) {
+      return null;
+    }
+
+    const object = findObject(offsetX, offsetY, scaledSize, objects);
+
+    this.callbackGetClickedObject(object);
+  }
+
+  private addClickEvent() {
+    this.canvas?.addEventListener('click', this.onClick.bind(this));
+  }
+
+  private removeClickEvent() {
+    this.canvas?.removeEventListener('click', this.onClick.bind(this));
+  }
+
+  private addResizeEvent(sizes?: ISize) {
+    window.addEventListener('resize', this.setSizes.bind(this, sizes));
+  }
+
   private removeResizeEvent(): void {
     window.removeEventListener('resize', this.setSizes.bind(this, undefined));
   }
@@ -148,6 +144,7 @@ class Canvas {
     this.params = null;
 
     this.removeResizeEvent();
+    this.removeClickEvent();
   }
 }
 

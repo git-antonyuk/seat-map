@@ -2,6 +2,7 @@
 import { ISize } from '../../types';
 import createData, { ISeatObject } from './createData';
 import Box from '../Objects/Box';
+import Pointers from '../Pointers';
 
 const MOVE_SPEED = 50;
 
@@ -18,7 +19,7 @@ class Seats {
    * [{ '0-0': {}, '0-1': {} }]
    * key is first part is position by x coordinate ans second by y
    */
-  objects: ISeatObject[] = [];
+  public objects: ISeatObject[] = [];
 
   private ctx: CanvasRenderingContext2D;
 
@@ -50,8 +51,8 @@ class Seats {
 
   private getCenterOffsets(): { x: number, y: number } {
     return {
-      x: (this.canvasSizes.width / 2) - (this.row * this.scaledSize) / 2,
-      y: (this.canvasSizes.height / 2) - (this.column * this.scaledSize) / 2,
+      x: (this.canvasSizes.width / 2) - (this.column * this.scaledSize) / 2,
+      y: (this.canvasSizes.height / 2) - (this.row * this.scaledSize) / 2,
     };
   }
 
@@ -81,22 +82,36 @@ class Seats {
     }
     this.clearCanvas();
 
-    list.forEach(({ posX, posY, disabled }, i) => {
-      if (disabled) {
-        return;
-      }
+    for (let i = 0; i < list.length; i += 1) {
+      const { posX, posY, disabled } = list[i];
       const x = this.getPositionX(posX);
       const y = this.getPositionY(posY);
+
       new Box(this.ctx, {
         size: this.scaledSize,
         x,
         y,
         strokeStyle: 'blue',
+        disabled,
+        padding: 5 * (this.scaledSize / this.size),
       });
 
       this.objects[i].realX = x;
       this.objects[i].realY = y;
+    }
+
+    const pointers = new Pointers({
+      ctx: this.ctx,
+      objects: this.objects,
+      scaleCoefficient: this.scaledSize / this.size,
+      scaledSize: this.scaledSize,
+      row: this.row,
+      column: this.column,
     });
+
+    pointers.drawVerticalPointers('left');
+    pointers.drawVerticalPointers('right');
+    // this.drawPointers();
   }
 
   private reDraw() {
@@ -115,6 +130,7 @@ class Seats {
 
   public editObject(object: ISeatObject) {
     const index = this.objects.findIndex((item: ISeatObject) => item.id === object.id);
+
     if (typeof index !== 'number' || !this.objects?.[index]) {
       return;
     }

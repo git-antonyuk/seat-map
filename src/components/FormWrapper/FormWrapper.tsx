@@ -6,6 +6,7 @@ import MoveForm from '../MoveForm/MoveForm';
 import Canvas from '../../modules/Canvas/index';
 import CreateSeats from '../CreateSeats/CreateSeats';
 import SeatsList from '../SeatsList/SeatsList';
+import ExportJSON from '../ExportJSON/ExportJSON';
 
 interface IProps {
     canvas: Canvas | null,
@@ -42,6 +43,7 @@ function FormWrapper(props: IProps) {
   // const createButtonComponent = () => !canvas && showCreateButton
   //   && <Button type="primary" onClick={openSeatForm}>Create seats</Button>;
   const seatsListComponent = () => !showSeatForm && canvas && <SeatsList canvas={canvas} />;
+  const exportJSONComponent = () => canvas && <ExportJSON canvas={canvas} />;
 
   return (
     <div className="form-wrapper">
@@ -50,6 +52,7 @@ function FormWrapper(props: IProps) {
         {moveComponent()}
         {seatFormComponent()}
         {seatsListComponent()}
+        {exportJSONComponent()}
       </Card>
     </div>
   );
