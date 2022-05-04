@@ -93,7 +93,7 @@ class Seats {
     if (!this.ctx) {
       return;
     }
-    this.clearCanvas();
+    // this.clearCanvas();
 
     for (let i = 0; i < list.length; i += 1) {
       const { posX, posY, disabled, hovered } = list[i];
@@ -165,8 +165,6 @@ class Seats {
 
   public editObject(object: ISeatObject) {
     const index = this.objects.findIndex((item: ISeatObject) => item.id === object.id);
-
-    console.log('%c 🍫 index: ', 'font-size:12px;background-color: #FCA650;color:#fff;', index);
 
     if (typeof index !== 'number' || !this.objects?.[index]) {
       return;

@@ -2,6 +2,7 @@ import { ISeatObject } from '../Seats/createData';
 import { ISize } from '../../types';
 import Seats, { ICreateSeatsParams } from '../Seats';
 import { findCanvasElement, findObject } from './helpers';
+import CreateSeatsBlock from '../Seats/CreateSeatsBlock';
 
 interface ICanvasConstructorParams {
   id: string;
@@ -32,17 +33,24 @@ class Canvas {
     height: 0,
   };
 
-  private callbackGetClickedObject: Function;
+  private callbackGetClickedObject: Function | undefined;
+
+  private seatsBlocksInstance: CreateSeatsBlock | undefined;
 
   constructor({ id, sizes, callbackGetClickedObject, params, objects, isPublic } : ICanvasConstructorParams) {
     this.createContext(id);
     this.setSizes(sizes);
+    if (!this.ctx) {
+      return;
+    }
     this.isPublic = isPublic;
     this.callbackGetClickedObject = callbackGetClickedObject;
 
+    this.seatsBlocksInstance = new CreateSeatsBlock(this.ctx, this.sizes);
+
     this.addResizeEvent(sizes);
-    this.addClickEvent();
-    this.addMouseMoveEvent();
+    // this.addClickEvent();
+    // this.addMouseMoveEvent();
 
     if (params) {
       this.createSeats({ ...params, isPublic: this.isPublic, objects });
@@ -118,6 +126,11 @@ class Canvas {
       return;
     }
     this.seats = new Seats(this.ctx, this.sizes, params || this.params);
+    console.log(
+      '%c 🍬 seatsBlocksInstance: ',
+      'font-size:12px;background-color: #FFDD4D;color:#fff;',
+      this.seatsBlocksInstance,
+    );
   }
 
   // Events
@@ -152,7 +165,7 @@ class Canvas {
   private onClick({ offsetX, offsetY }: { offsetX: number, offsetY: number }) {
     const object = this.getObject({ offsetX, offsetY });
 
-    if (!object) {
+    if (!object || !this.callbackGetClickedObject) {
       return;
     }
 
