@@ -33,7 +33,6 @@ function Map() {
     const canvasInstance = new Canvas({
       id: '#canvas',
       callbackGetClickedObject,
-      isPublic: false,
     });
 
     setCanvas(canvasInstance);

@@ -2,14 +2,14 @@ import uniqueId from 'lodash/uniqueId';
 import Seats, { ICreateSeatsParams } from './index';
 import { ISize } from '../../types';
 
-interface ISeatsBox {
+export interface ISeatsBlock {
   id: number | string,
   name: string,
   instance: Seats
 }
 
 class CreateSeatsBlock {
-  public seatBlocks: ISeatsBox[] = [];
+  public seatBlocks: ISeatsBlock[] = [];
 
   private ctx: CanvasRenderingContext2D;
 
@@ -23,7 +23,10 @@ class CreateSeatsBlock {
     this.canvasSizes = canvasSizes;
   }
 
-  create(params: ICreateSeatsParams) {
+  create(params: ICreateSeatsParams | null) {
+    if (!params) {
+      return;
+    }
     const name = `Block_${this.seatBlocks.length + 1}`;
     this.seatBlocks.push({
       id: uniqueId('_block'),
@@ -32,13 +35,27 @@ class CreateSeatsBlock {
     });
   }
 
-  // edit() {
-  //   console.log('edit');
-  // }
+  public move(moves: any) {
+    for (let i = 0; i < this.seatBlocks.length; i += 1) {
+      const block = this.seatBlocks[i].instance;
 
-  // delete() {
-  //   console.log('delete');
-  // }
+      if (moves.right) {
+        block.moveRight(moves.right);
+      }
+
+      if (moves.left) {
+        block.moveLeft(moves.left);
+      }
+
+      if (moves.up) {
+        block.moveUp(moves.up);
+      }
+
+      if (moves.down) {
+        block.moveDown(moves.down);
+      }
+    }
+  }
 }
 
 export default CreateSeatsBlock;

@@ -5,8 +5,6 @@ import Box from '../Objects/Box';
 import Pointers from '../Pointers';
 import objectDeepClone from '../../utils/objectDeepClone';
 
-const MOVE_SPEED = 50;
-
 export interface ICreateSeatsParams {
   row: number,
   column: number,
@@ -85,15 +83,10 @@ class Seats {
     return (this.scaledSize * posY) + this.getFullOffsets().y;
   }
 
-  private clearCanvas() {
-    this.ctx.clearRect(0, 0, this.canvasSizes.width, this.canvasSizes.height);
-  }
-
-  private drawBoxes(list: ISeatObject[]) {
+  public drawBoxes(list: ISeatObject[]) {
     if (!this.ctx) {
       return;
     }
-    // this.clearCanvas();
 
     for (let i = 0; i < list.length; i += 1) {
       const { posX, posY, disabled, hovered } = list[i];
@@ -146,7 +139,7 @@ class Seats {
     this.drawBoxes(localObjects);
   }
 
-  private reDraw() {
+  public reDraw() {
     this.drawBoxes(this.objects);
   }
 
@@ -173,24 +166,20 @@ class Seats {
     this.reDraw();
   }
 
-  public moveRight() {
-    this.offsetX += MOVE_SPEED;
-    this.reDraw();
+  public moveRight(speed: any) {
+    this.offsetX += speed;
   }
 
-  public moveLeft() {
-    this.offsetX -= MOVE_SPEED;
-    this.reDraw();
+  public moveLeft(speed: any) {
+    this.offsetX -= speed;
   }
 
-  public moveTop() {
-    this.offsetY -= MOVE_SPEED;
-    this.reDraw();
+  public moveUp(speed: any) {
+    this.offsetY -= speed;
   }
 
-  public moveBottom() {
-    this.offsetY += MOVE_SPEED;
-    this.reDraw();
+  public moveDown(speed: any) {
+    this.offsetY += speed;
   }
 
   public setZoom(payload: number) {
