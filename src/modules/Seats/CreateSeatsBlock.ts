@@ -1,7 +1,7 @@
 import uniqueId from 'lodash/uniqueId';
 import { IClickAndHoldMoves } from '../Events/ClickAndHold';
 import Seats, { ICreateSeatsParams } from './index';
-import { ISize } from '../../types';
+import { ISize, IEventParams } from '../../types';
 
 export interface ISeatsBlock {
   id: number | string,
@@ -10,21 +10,29 @@ export interface ISeatsBlock {
 }
 
 class CreateSeatsBlock {
-  public seatBlocks: ISeatsBlock[] = [];
+  private canvas: HTMLCanvasElement | null = null;
+
+  private activeSeatBlockIndex: number | null = null;
+
+  private seatBlocks: ISeatsBlock[] = [];
 
   private ctx: CanvasRenderingContext2D;
 
   private canvasSizes: ISize;
 
   constructor(
+    canvas: HTMLCanvasElement | null,
     ctx: CanvasRenderingContext2D,
     canvasSizes: ISize,
   ) {
     this.ctx = ctx;
     this.canvasSizes = canvasSizes;
+    this.canvas = canvas;
+
+    this.addClickEvent();
   }
 
-  create(params: ICreateSeatsParams | null) {
+  public create(params: ICreateSeatsParams | null) {
     if (!params) {
       return;
     }
@@ -36,26 +44,79 @@ class CreateSeatsBlock {
     });
   }
 
-  public move(moves: IClickAndHoldMoves) {
-    for (let i = 0; i < this.seatBlocks.length; i += 1) {
-      const block = this.seatBlocks[i].instance;
+  public getSeatBlocks(): ISeatsBlock[] {
+    return this.seatBlocks;
+  }
 
-      if (moves.right) {
-        block.moveRight(moves.right);
-      }
+  public setActiveSeatBlockIndex(index: number | null) {
+    this.activeSeatBlockIndex = index;
+  }
 
-      if (moves.left) {
-        block.moveLeft(moves.left);
-      }
+  public getActiveSeatBlockIndex(): number | null {
+    return this.activeSeatBlockIndex;
+  }
 
-      if (moves.up) {
-        block.moveUp(moves.up);
-      }
-
-      if (moves.down) {
-        block.moveDown(moves.down);
-      }
+  private getActiveBlockInstance(): Seats | null {
+    const index = this.getActiveSeatBlockIndex();
+    if (typeof index !== 'number') {
+      return null;
     }
+    return this.seatBlocks[index].instance;
+  }
+
+  public move(moves: IClickAndHoldMoves) {
+    const activeBlock = this.getActiveBlockInstance();
+
+    if (!activeBlock) {
+      return;
+    }
+    if (moves.right) {
+      activeBlock.moveRight(moves.right);
+    }
+    if (moves.left) {
+      activeBlock.moveLeft(moves.left);
+    }
+    if (moves.up) {
+      activeBlock.moveUp(moves.up);
+    }
+    if (moves.down) {
+      activeBlock.moveDown(moves.down);
+    }
+  }
+
+  private findClickedBlock(x: number, y: number): void {
+    const activeBlock = this.seatBlocks.find(
+      (
+        { instance:
+          {
+            blockParams:
+              {
+                realX, realY, height, width,
+              },
+          },
+        },
+      ) => x >= realX && x <= realX + width && y >= realY && y <= realY + height,
+    );
+
+    if (!activeBlock) {
+      return;
+    }
+
+    const activeIndex = this.seatBlocks.findIndex((block: ISeatsBlock) => block.id === activeBlock.id);
+
+    if (typeof activeIndex === 'undefined') {
+      return;
+    }
+
+    this.setActiveSeatBlockIndex(activeIndex);
+  }
+
+  private onClick({ offsetX, offsetY }: IEventParams) {
+    this.findClickedBlock(offsetX, offsetY);
+  }
+
+  private addClickEvent() {
+    this.canvas?.addEventListener('click', this.onClick.bind(this));
   }
 }
 

@@ -1,15 +1,11 @@
 import throttle from 'lodash/throttle';
+import { IEventParams } from '../../types';
 
 export interface IClickAndHoldMoves {
   right: number;
   left: number;
   up: number;
   down: number;
-}
-
-interface IEventParams {
-  offsetX: number;
-  offsetY: number;
 }
 
 interface IClickAndHoldParams {

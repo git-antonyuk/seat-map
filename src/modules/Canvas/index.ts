@@ -1,7 +1,7 @@
 import ClickAndHold, { IClickAndHoldMoves } from '../Events/ClickAndHold';
 import { ISize } from '../../types';
 import Seats, { ICreateSeatsParams } from '../Seats';
-import { findCanvasElement, findObject } from './helpers';
+import { findCanvasElement } from './helpers';
 import CreateSeatsBlock, { ISeatsBlock } from '../Seats/CreateSeatsBlock';
 
 interface ICanvasConstructorParams {
@@ -46,7 +46,7 @@ class Canvas {
     }
     this.callbackGetClickedObject = callbackGetClickedObject;
 
-    this.seatsBlocksInstance = new CreateSeatsBlock(this.ctx, this.sizes);
+    this.seatsBlocksInstance = new CreateSeatsBlock(this.canvas, this.ctx, this.sizes);
 
     this.addResizeEvent(sizes);
     // this.addClickEvent();
@@ -122,64 +122,61 @@ class Canvas {
     this.seatsBlocksInstance?.create(params || this.params);
   }
 
-  // Events
-  // TODO: add debounce
-  // eslint-disable-next-line class-methods-use-this
-  private getObject = ({
-    offsetX,
-    offsetY,
-  }: {
-    offsetX: number;
-    offsetY: number;
-  }) => {
-    const scaledSize = this.seats?.scaledSize;
-    const objects = this.seats?.objects;
+  // private getObject = ({
+  //   offsetX,
+  //   offsetY,
+  // }: {
+  //   offsetX: number;
+  //   offsetY: number;
+  // }) => {
+  //   const scaledSize = this.seats?.scaledSize;
+  //   const objects = this.seats?.objects;
 
-    if (!scaledSize || !objects) {
-      return null;
-    }
+  //   if (!scaledSize || !objects) {
+  //     return null;
+  //   }
 
-    return findObject(offsetX, offsetY, scaledSize, objects);
-  };
+  //   return findObject(offsetX, offsetY, scaledSize, objects);
+  // };
 
-  private onMouseMove({
-    offsetX,
-    offsetY,
-  }: {
-    offsetX: number;
-    offsetY: number;
-  }) {
-    const object = this.getObject({ offsetX, offsetY });
+  // private onMouseMove({
+  //   offsetX,
+  //   offsetY,
+  // }: {
+  //   offsetX: number;
+  //   offsetY: number;
+  // }) {
+  //   const object = this.getObject({ offsetX, offsetY });
 
-    this.seats?.onHoverObject(object?.id);
-  }
+  //   this.seats?.onHoverObject(object?.id);
+  // }
 
   // TODO: add debounce
-  private addMouseMoveEvent() {
-    this.canvas?.addEventListener('mousemove', this.onMouseMove.bind(this));
-  }
+  // private addMouseMoveEvent() {
+  //   this.canvas?.addEventListener('mousemove', this.onMouseMove.bind(this));
+  // }
 
-  private removeMouseMoveEvent() {
-    this.canvas?.removeEventListener('click', this.onMouseMove.bind(this));
-  }
+  // private removeMouseMoveEvent() {
+  //   this.canvas?.removeEventListener('click', this.onMouseMove.bind(this));
+  // }
 
-  private onClick({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
-    const object = this.getObject({ offsetX, offsetY });
+  // private onClick({ offsetX, offsetY }: { offsetX: number; offsetY: number }) {
+  //   const object = this.getObject({ offsetX, offsetY });
 
-    if (!object || !this.callbackGetClickedObject) {
-      return;
-    }
+  //   if (!object || !this.callbackGetClickedObject) {
+  //     return;
+  //   }
 
-    this.callbackGetClickedObject(object);
-  }
+  //   this.callbackGetClickedObject(object);
+  // }
 
-  private addClickEvent() {
-    this.canvas?.addEventListener('click', this.onClick.bind(this));
-  }
+  // private addClickEvent() {
+  //   this.canvas?.addEventListener('click', this.onClick.bind(this));
+  // }
 
-  private removeClickEvent() {
-    this.canvas?.removeEventListener('click', this.onClick.bind(this));
-  }
+  // private removeClickEvent() {
+  //   this.canvas?.removeEventListener('click', this.onClick.bind(this));
+  // }
 
   private addResizeEvent(sizes?: ISize) {
     window.addEventListener('resize', this.setSizes.bind(this, sizes));
@@ -198,8 +195,8 @@ class Canvas {
     this.clickAndHoldInstance?.removeEvents();
 
     this.removeResizeEvent();
-    this.removeClickEvent();
-    this.removeMouseMoveEvent();
+    // this.removeClickEvent();
+    // this.removeMouseMoveEvent();
   }
 
   private clearCanvas() {
@@ -209,9 +206,12 @@ class Canvas {
   private tick() {
     // Update draw
     this.clearCanvas();
-    this.seatsBlocksInstance?.seatBlocks.forEach((block: ISeatsBlock) => {
-      block.instance.reDraw();
-    });
+    if (this.seatsBlocksInstance) {
+      this.seatsBlocksInstance.getSeatBlocks().forEach((block: ISeatsBlock) => {
+        block.instance.reDraw();
+      });
+    }
+
     // Call tick again on the next frame
     window.requestAnimationFrame(() => this.tick());
   }

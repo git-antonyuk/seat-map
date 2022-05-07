@@ -14,6 +14,13 @@ export interface ICreateSeatsParams {
   objects?: ISeatObject[]
 }
 
+interface IBlockParams {
+  realX: number;
+  realY: number;
+  width: number;
+  height: number;
+}
+
 class Seats {
   /**
    * Data structure
@@ -30,9 +37,11 @@ class Seats {
 
   private offsetY: number = 0;
 
+  // Size of each seat
   private size: number = 0;
 
-  public scaledSize: number = 0; // Zoom size * 1 -> 100%
+  // Zoomed size of each seat * 1 -> 100%
+  public scaledSize: number = 0;
 
   private row: number = 0;
 
@@ -41,6 +50,13 @@ class Seats {
   private price: number = 0;
 
   private isPublic: boolean = false;
+
+  public blockParams: IBlockParams = {
+    realX: 0,
+    realY: 0,
+    width: 0,
+    height: 0,
+  };
 
   constructor(
     ctx: CanvasRenderingContext2D,
@@ -103,9 +119,15 @@ class Seats {
         hovered,
       });
 
+      // X position including all offsets
       this.objects[i].realX = x;
       this.objects[i].realY = y;
     }
+
+    this.blockParams.realX = this.objects[0]?.realX;
+    this.blockParams.realY = this.objects[0]?.realY;
+    this.blockParams.height = this.row * this.size;
+    this.blockParams.width = this.column * this.size;
 
     const pointers = new Pointers({
       ctx: this.ctx,
