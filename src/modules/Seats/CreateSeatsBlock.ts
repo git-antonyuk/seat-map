@@ -1,4 +1,5 @@
 import uniqueId from 'lodash/uniqueId';
+import { IClickAndHoldMoves } from '../Events/ClickAndHold';
 import Seats, { ICreateSeatsParams } from './index';
 import { ISize } from '../../types';
 
@@ -35,7 +36,7 @@ class CreateSeatsBlock {
     });
   }
 
-  public move(moves: any) {
+  public move(moves: IClickAndHoldMoves) {
     for (let i = 0; i < this.seatBlocks.length; i += 1) {
       const block = this.seatBlocks[i].instance;
 

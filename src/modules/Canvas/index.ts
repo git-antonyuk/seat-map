@@ -1,4 +1,4 @@
-import throttle from 'lodash/throttle';
+import ClickAndHold, { IClickAndHoldMoves } from '../Events/ClickAndHold';
 import { ISize } from '../../types';
 import Seats, { ICreateSeatsParams } from '../Seats';
 import { findCanvasElement, findObject } from './helpers';
@@ -32,6 +32,8 @@ class Canvas {
 
   private seatsBlocksInstance: CreateSeatsBlock | undefined;
 
+  private clickAndHoldInstance: ClickAndHold | null = null;
+
   constructor({
     id,
     sizes,
@@ -49,7 +51,11 @@ class Canvas {
     this.addResizeEvent(sizes);
     // this.addClickEvent();
     // this.addMouseMoveEvent();
-    this.addClickAddHold();
+    // this.addClickAddHold();
+    this.clickAndHoldInstance = new ClickAndHold({
+      canvas: this.canvas,
+      callBack: (moves: IClickAndHoldMoves) => this.seatsBlocksInstance?.move(moves),
+    });
 
     this.tick();
 
@@ -183,69 +189,13 @@ class Canvas {
     window.removeEventListener('resize', this.setSizes.bind(this, undefined));
   }
 
-  // TODO move it to new class
-  private addClickAddHold(): void {
-    let activeClickAndHold = false;
-    let prevX: number | null = null;
-    let prevY: number | null = null;
-
-    this.canvas?.addEventListener('mousedown', () => {
-      activeClickAndHold = true;
-    });
-
-    const debounced = throttle(
-      ({ offsetX, offsetY }: { offsetX: number; offsetY: number }) => {
-        if (!activeClickAndHold) {
-          return;
-        }
-        const moves: any = {
-          right: false,
-          left: false,
-          top: false,
-          bottom: false,
-        };
-
-        if (!prevX) {
-          prevX = offsetX;
-        }
-
-        if (!prevY) {
-          prevY = offsetY;
-        }
-
-        if (prevX < offsetX) {
-          moves.right = offsetX - prevX;
-        }
-        if (prevX > offsetX) {
-          moves.left = prevX - offsetX;
-        }
-        if (prevY > offsetY) {
-          moves.up = prevY - offsetY;
-        }
-        if (prevY < offsetY) {
-          moves.down = offsetY - prevY;
-        }
-
-        prevX = offsetX;
-        prevY = offsetY;
-
-        this.seatsBlocksInstance?.move(moves);
-      },
-      20,
-    );
-
-    this.canvas?.addEventListener('mousemove', debounced);
-
-    this.canvas?.addEventListener('mouseup', () => {
-      activeClickAndHold = false;
-    });
-  }
-
   public destroy() {
     this.canvas = null;
     this.ctx = null;
     this.seats = null;
     this.params = null;
+
+    this.clickAndHoldInstance?.removeEvents();
 
     this.removeResizeEvent();
     this.removeClickEvent();
