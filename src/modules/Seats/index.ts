@@ -99,6 +99,8 @@ class Seats {
     return (this.scaledSize * posY) + this.getFullOffsets().y;
   }
 
+  prev: any = null;
+
   public drawBoxes(list: ISeatObject[]) {
     if (!this.ctx) {
       return;
@@ -115,7 +117,7 @@ class Seats {
         y,
         strokeStyle: 'blue',
         disabled,
-        padding: 5 * (this.scaledSize / this.size),
+        padding: 2 * (this.scaledSize / this.size),
         hovered,
       });
 

@@ -13,6 +13,12 @@ interface IClickAndHoldParams {
   callBack: Function;
 }
 
+export interface IClickAndHoldCallBackParams {
+  moves: IClickAndHoldMoves,
+  offsetX: number,
+  offsetY: number
+}
+
 class ClickAndHold {
   private canvas: HTMLCanvasElement | null;
 
@@ -34,6 +40,11 @@ class ClickAndHold {
   }
 
   private DELAY: number = 20;
+
+  private setDefaultPrevPosition() {
+    this.prevX = null;
+    this.prevY = null;
+  }
 
   private throttled = throttle(
     ({ offsetX, offsetY }: IEventParams) => {
@@ -71,13 +82,17 @@ class ClickAndHold {
       this.prevX = offsetX;
       this.prevY = offsetY;
 
-      this.callBack(moves);
+      this.callBack({ moves, offsetX, offsetY });
     },
     this.DELAY,
   );
 
   private setActiveClickAndHold(payload: boolean): void {
     this.activeClickAndHold = payload;
+
+    if (!payload) {
+      this.setDefaultPrevPosition();
+    }
   }
 
   private addEvents(): void {

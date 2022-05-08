@@ -1,4 +1,3 @@
-import ClickAndHold, { IClickAndHoldMoves } from '../Events/ClickAndHold';
 import { ISize } from '../../types';
 import Seats, { ICreateSeatsParams } from '../Seats';
 import { findCanvasElement } from './helpers';
@@ -32,8 +31,6 @@ class Canvas {
 
   private seatsBlocksInstance: CreateSeatsBlock | undefined;
 
-  private clickAndHoldInstance: ClickAndHold | null = null;
-
   constructor({
     id,
     sizes,
@@ -52,11 +49,6 @@ class Canvas {
     // this.addClickEvent();
     // this.addMouseMoveEvent();
     // this.addClickAddHold();
-    this.clickAndHoldInstance = new ClickAndHold({
-      canvas: this.canvas,
-      callBack: (moves: IClickAndHoldMoves) => this.seatsBlocksInstance?.move(moves),
-    });
-
     this.tick();
 
     this.seatsBlocksInstance?.create({
@@ -192,7 +184,7 @@ class Canvas {
     this.seats = null;
     this.params = null;
 
-    this.clickAndHoldInstance?.removeEvents();
+    // this.clickAndHoldInstance?.removeEvents();
 
     this.removeResizeEvent();
     // this.removeClickEvent();

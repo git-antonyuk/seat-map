@@ -1,7 +1,7 @@
 import uniqueId from 'lodash/uniqueId';
-import { IClickAndHoldMoves } from '../Events/ClickAndHold';
+import ClickAndHold, { IClickAndHoldCallBackParams } from '../Events/ClickAndHold';
 import Seats, { ICreateSeatsParams } from './index';
-import { ISize, IEventParams } from '../../types';
+import { ISize } from '../../types';
 
 export interface ISeatsBlock {
   id: number | string,
@@ -20,6 +20,8 @@ class CreateSeatsBlock {
 
   private canvasSizes: ISize;
 
+  private clickAndHoldInstance: ClickAndHold | null = null;
+
   constructor(
     canvas: HTMLCanvasElement | null,
     ctx: CanvasRenderingContext2D,
@@ -29,7 +31,10 @@ class CreateSeatsBlock {
     this.canvasSizes = canvasSizes;
     this.canvas = canvas;
 
-    this.addClickEvent();
+    this.clickAndHoldInstance = new ClickAndHold({
+      canvas: this.canvas,
+      callBack: (params: IClickAndHoldCallBackParams) => this.move(params),
+    });
   }
 
   public create(params: ICreateSeatsParams | null) {
@@ -64,7 +69,8 @@ class CreateSeatsBlock {
     return this.seatBlocks[index].instance;
   }
 
-  public move(moves: IClickAndHoldMoves) {
+  public move({ moves, offsetX, offsetY }: IClickAndHoldCallBackParams) {
+    this.findClickedBlock(offsetX, offsetY);
     const activeBlock = this.getActiveBlockInstance();
 
     if (!activeBlock) {
@@ -99,24 +105,18 @@ class CreateSeatsBlock {
     );
 
     if (!activeBlock) {
+      this.setActiveSeatBlockIndex(null);
       return;
     }
 
     const activeIndex = this.seatBlocks.findIndex((block: ISeatsBlock) => block.id === activeBlock.id);
 
     if (typeof activeIndex === 'undefined') {
+      this.setActiveSeatBlockIndex(null);
       return;
     }
 
     this.setActiveSeatBlockIndex(activeIndex);
-  }
-
-  private onClick({ offsetX, offsetY }: IEventParams) {
-    this.findClickedBlock(offsetX, offsetY);
-  }
-
-  private addClickEvent() {
-    this.canvas?.addEventListener('click', this.onClick.bind(this));
   }
 }
 
