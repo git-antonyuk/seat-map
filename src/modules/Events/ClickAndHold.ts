@@ -11,6 +11,7 @@ export interface IClickAndHoldMoves {
 interface IClickAndHoldParams {
   canvas: HTMLCanvasElement | null;
   callBack: Function;
+  onClickAndHoldEnd?: Function;
 }
 
 export interface IClickAndHoldCallBackParams {
@@ -24,6 +25,8 @@ class ClickAndHold {
 
   private callBack: Function;
 
+  private onClickAndHoldEnd: Function | null = null;
+
   private activeClickAndHold: boolean = false;
 
   private prevX: number | null = null;
@@ -33,9 +36,13 @@ class ClickAndHold {
   constructor({
     canvas,
     callBack,
+    onClickAndHoldEnd,
   }: IClickAndHoldParams) {
     this.canvas = canvas;
     this.callBack = callBack;
+    if (onClickAndHoldEnd) {
+      this.onClickAndHoldEnd = onClickAndHoldEnd;
+    }
     this.addEvents();
   }
 
@@ -92,6 +99,10 @@ class ClickAndHold {
 
     if (!payload) {
       this.setDefaultPrevPosition();
+    }
+
+    if (this.onClickAndHoldEnd) {
+      this.onClickAndHoldEnd();
     }
   }
 

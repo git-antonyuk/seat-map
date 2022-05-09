@@ -34,6 +34,7 @@ class CreateSeatsBlock {
     this.clickAndHoldInstance = new ClickAndHold({
       canvas: this.canvas,
       callBack: (params: IClickAndHoldCallBackParams) => this.move(params),
+      onClickAndHoldEnd: () => this.onClickAndHoldEnd(),
     });
   }
 
@@ -90,6 +91,10 @@ class CreateSeatsBlock {
     }
   }
 
+  private onClickAndHoldEnd() {
+    this.setActiveSeatBlockIndex(null);
+  }
+
   private findClickedBlock(x: number, y: number): void {
     const activeBlock = this.seatBlocks.find(
       (
@@ -113,6 +118,10 @@ class CreateSeatsBlock {
 
     if (typeof activeIndex === 'undefined') {
       this.setActiveSeatBlockIndex(null);
+      return;
+    }
+
+    if (this.getActiveSeatBlockIndex() !== null) {
       return;
     }
 
