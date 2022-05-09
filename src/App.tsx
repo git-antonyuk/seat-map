@@ -1,9 +1,9 @@
-import MapComponent from './components/Map/Map';
+import MainLayout from './layouts/MainLayout/MainLayout';
 
 function App() {
   return (
     <main>
-      <MapComponent />
+      <MainLayout />
     </main>
   );
 }

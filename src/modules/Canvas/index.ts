@@ -6,7 +6,6 @@ import CreateSeatsBlock, { ISeatsBlock } from '../Seats/CreateSeatsBlock';
 interface ICanvasConstructorParams {
   id: string;
   sizes?: ISize;
-  callbackGetClickedObject: Function;
 }
 
 const ERROR_CANT_FIND_ELEMENT = "Can't find canvas element";
@@ -27,21 +26,17 @@ class Canvas {
     height: 0,
   };
 
-  private callbackGetClickedObject: Function | undefined;
-
   private seatsBlocksInstance: CreateSeatsBlock | undefined;
 
   constructor({
     id,
     sizes,
-    callbackGetClickedObject,
   }: ICanvasConstructorParams) {
     this.createContext(id);
     this.setSizes(sizes);
     if (!this.ctx) {
       return;
     }
-    this.callbackGetClickedObject = callbackGetClickedObject;
 
     this.seatsBlocksInstance = new CreateSeatsBlock(this.canvas, this.ctx, this.sizes);
 
@@ -95,8 +90,8 @@ class Canvas {
     if (!this.canvas) {
       return;
     }
-    this.sizes.width = sizes?.width || window.innerWidth;
-    this.sizes.height = sizes?.height || window.innerHeight;
+    this.sizes.width = sizes?.width || this.canvas.clientWidth || window.innerWidth;
+    this.sizes.height = sizes?.height || this.canvas.clientHeight || window.innerHeight;
 
     const { devicePixelRatio } = window;
     if (devicePixelRatio > 1) {
